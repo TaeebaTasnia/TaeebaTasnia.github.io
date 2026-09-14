@@ -1,0 +1,12 @@
+{
+  "name": "Taeeba Tasnia — Portfolio",
+  "short_name": "Taeeba Tasnia",
+  "description": "AI/ML engineer and product person. Portfolio of Taeeba Tasnia.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+  ]
+}
