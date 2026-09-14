@@ -117,7 +117,7 @@ export const projects = [
     role: "Full-Stack Developer",
     outcome: "Production-ready storefront with containerised backend and type-safe frontend.",
     tech: ["FastAPI", "PostgreSQL", "Docker", "Next.js", "TypeScript", "Tailwind CSS"],
-    github: "https://github.com/TaeebaTasnia/glowaura-skincare-e-commerce",
+    github: "https://github.com/TaeebaTasnia/skincare-ecommerce",
     live: null,
     image: "/images/projects/glowaura.png",
   },

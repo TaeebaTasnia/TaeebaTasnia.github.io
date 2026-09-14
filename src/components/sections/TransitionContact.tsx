@@ -81,7 +81,6 @@ const RESUMES = [
   { label: "Product Owner Resume",  href: "/cv/TaeebaTasnia_Resume_ProductOwner.pdf" },
 ];
 
-
 function LinkRow({ items }: { items: { label: string; href: string }[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
   return (
@@ -119,43 +118,128 @@ function LinkRow({ items }: { items: { label: string; href: string }[] }) {
   );
 }
 
-export default function TransitionContact() {
-  const wrapRef = useRef<HTMLElement>(null);
-  const personalLayerRef = useRef<HTMLDivElement>(null);
-  const contactRef = useRef<HTMLDivElement>(null);
+// ── Shoktikonna: plain scrolling section, no sticky ──────────────────────────
+function ShoktikonnaPart() {
+  const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.05 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      id="personal"
+      style={{
+        background: "#080808",
+        color: "#F4F1EB",
+        padding: "14vh 5vw 16vh",
+        position: "relative",
+      }}
+    >
+      <style>{`@keyframes twBlink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
+
+      {/* Top rule */}
+      <div style={{ position: "absolute", top: 0, left: "5vw", right: "5vw", height: 1, background: "rgba(244,241,235,0.08)" }} />
+
+      {/* Section label */}
+      <div style={{
+        fontFamily: "JetBrains Mono, monospace",
+        fontSize: "clamp(15px, 1.4vw, 18px)", fontWeight: 700,
+        letterSpacing: "0.08em", textTransform: "uppercase",
+        color: "#d7ef35", display: "flex", alignItems: "center", gap: 14,
+        marginBottom: "5vh",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "none" : "translateY(16px)",
+        transition: "opacity 0.6s ease, transform 0.6s ease",
+      }}>
+        <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#d7ef35" }} />
+        06 — Beyond the Work
+      </div>
+
+      <div style={{ opacity: visible ? 1 : 0, transition: "opacity 0.3s ease 0.2s" }}>
+        <StaticHeadline />
+      </div>
+
+      <div style={{
+        display: "grid", gridTemplateColumns: "1fr 1.5fr",
+        gap: "clamp(40px, 6vw, 100px)", alignItems: "start",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "none" : "translateY(24px)",
+        transition: "opacity 0.7s ease 0.5s, transform 0.7s ease 0.5s",
+      }}>
+        {/* Portrait */}
+        <div style={{ position: "relative" }}>
+          <img src="/images/portrait.jpg" alt="Taeeba Tasnia" style={{ display: "block", width: "100%", height: "auto" }} />
+          {[
+            { top: -12, left: -12, borderTop: "2px solid #d7ef35", borderLeft: "2px solid #d7ef35" },
+            { top: -12, right: -12, borderTop: "2px solid #d7ef35", borderRight: "2px solid #d7ef35" },
+            { bottom: -12, left: -12, borderBottom: "2px solid #d7ef35", borderLeft: "2px solid #d7ef35" },
+            { bottom: -12, right: -12, borderBottom: "2px solid #d7ef35", borderRight: "2px solid #d7ef35" },
+          ].map((s, i) => (
+            <div key={i} style={{ position: "absolute", width: 28, height: 28, ...s }} />
+          ))}
+        </div>
+
+        {/* Text */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "clamp(24px, 3.5vh, 44px)", paddingTop: "1vh" }}>
+          <div style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: "clamp(1.4rem, 2.2vw, 2.2rem)", color: "#d7ef35", letterSpacing: "0.04em" }}>
+            Shoktikonna
+          </div>
+          <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "clamp(0.9rem, 1.1vw, 1.05rem)", color: "rgba(244,241,235,0.55)", lineHeight: 1.8, margin: 0, fontStyle: "italic" }}>
+            A pioneering leadership programme in Bangladesh designed to empower young women pursuing careers in sustainable and renewable energy.
+          </p>
+          <div style={{ height: 1, background: "rgba(244,241,235,0.10)" }} />
+          {[
+            "Selected for Shoktikonna — chosen from a competitive cohort of young women in tech and energy sectors across Bangladesh.",
+            "Appointed Founding Member of the Alumni Committee, helping build and coordinate network engagement across 300+ graduate members from the ground up.",
+          ].map((text, i) => (
+            <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+              <span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "50%", background: "#d7ef35", marginTop: 8, flexShrink: 0 }} />
+              <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "clamp(0.9rem, 1.1vw, 1.05rem)", color: "rgba(244,241,235,0.85)", lineHeight: 1.8, margin: 0 }}>
+                {text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Contact: sticky panel that rises AFTER Shoktikonna ────────────────────────
+function ContactPart() {
+  const wrapRef = useRef<HTMLElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [contactVisible, setContactVisible] = useState(false);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
 
-    setVisible(true);
-
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: wrap,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: reduced ? 0 : 0.9,
+        // Rise starts the moment this section enters from below the viewport
+        start: "top bottom",
+        // Rise completes when the section top reaches the viewport top
+        end: "top top",
+        scrub: reduced ? 0 : 1.2,
         onUpdate(self) {
-          const p = self.progress;
-
-          // Personal fades to dark quickly over first 10%
-          if (personalLayerRef.current) {
-            personalLayerRef.current.style.opacity = String(Math.max(0, 1 - p / 0.10));
+          if (panelRef.current) {
+            panelRef.current.style.transform = `translateY(${(1 - self.progress) * 100}%)`;
           }
-
-          // Contact panel rises over last 35%
-          if (contactRef.current) {
-            const cp = Math.max(0, (p - 0.65) / 0.35);
-            contactRef.current.style.transform = `translateY(${(1 - cp) * 100}%)`;
-          }
-
-          // Trigger contact typewriter once panel is fully risen
-          if (p >= 0.98) setContactVisible(true);
+          if (self.progress >= 0.95) setContactVisible(true);
         },
       });
     }, wrap);
@@ -164,103 +248,27 @@ export default function TransitionContact() {
   }, []);
 
   return (
+    // 200vh: first 100vh = rise animation, second 100vh = panel stays sticky so user can read
     <section
+      id="contact"
       ref={wrapRef}
-      id="personal"
-      style={{ height: "350vh", position: "relative" }}
+      style={{ height: "200vh", position: "relative" }}
     >
-      <style>{`
-        @keyframes twBlink  { 0%,100%{opacity:1} 50%{opacity:0} }
-        @keyframes twBlinkB { 0%,100%{opacity:1} 50%{opacity:0} }
-      `}</style>
+      <style>{`@keyframes twBlinkB { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
 
-      <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden", background: "#080808" }}>
-
-        {/* ── Layer 1: Personal / Shoktikonna — fades out ── */}
+      <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
         <div
-          ref={personalLayerRef}
+          ref={panelRef}
           style={{
-            position: "absolute", inset: 0, zIndex: 1,
-            background: "#080808", color: "#F4F1EB",
-            padding: "14vh 5vw 16vh", overflow: "hidden",
-          }}
-        >
-          <div style={{ position: "absolute", top: 0, left: "5vw", right: "5vw", height: 1, background: "rgba(244,241,235,0.08)" }} />
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <div style={{
-              fontFamily: "JetBrains Mono, monospace",
-              fontSize: "clamp(15px, 1.4vw, 18px)", fontWeight: 700,
-              letterSpacing: "0.08em", textTransform: "uppercase",
-              color: "#d7ef35", display: "flex", alignItems: "center", gap: 14,
-              marginBottom: "5vh",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "none" : "translateY(16px)",
-              transition: "opacity 0.6s ease, transform 0.6s ease",
-            }}>
-              <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#d7ef35" }} />
-              06 — Beyond the Work
-            </div>
-
-            <div style={{ opacity: visible ? 1 : 0, transition: "opacity 0.3s ease 0.2s" }}>
-              <StaticHeadline />
-            </div>
-
-            <div style={{
-              display: "grid", gridTemplateColumns: "1fr 1.5fr",
-              gap: "clamp(40px, 6vw, 100px)", alignItems: "start",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "none" : "translateY(24px)",
-              transition: "opacity 0.7s ease 0.5s, transform 0.7s ease 0.5s",
-            }}>
-              <div style={{ position: "relative" }}>
-                <img src="/images/portrait.jpg" alt="Taeeba Tasnia" style={{ display: "block", width: "100%", height: "auto" }} />
-                {[
-                  { top: -12, left: -12, borderTop: "2px solid #d7ef35", borderLeft: "2px solid #d7ef35" },
-                  { top: -12, right: -12, borderTop: "2px solid #d7ef35", borderRight: "2px solid #d7ef35" },
-                  { bottom: -12, left: -12, borderBottom: "2px solid #d7ef35", borderLeft: "2px solid #d7ef35" },
-                  { bottom: -12, right: -12, borderBottom: "2px solid #d7ef35", borderRight: "2px solid #d7ef35" },
-                ].map((s, i) => (
-                  <div key={i} style={{ position: "absolute", width: 28, height: 28, ...s }} />
-                ))}
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "clamp(24px, 3.5vh, 44px)", paddingTop: "1vh" }}>
-                <div style={{ fontFamily: "JetBrains Mono, monospace", fontWeight: 700, fontSize: "clamp(1.4rem, 2.2vw, 2.2rem)", color: "#d7ef35", letterSpacing: "0.04em" }}>
-                  Shoktikonna
-                </div>
-                <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "clamp(0.9rem, 1.1vw, 1.05rem)", color: "rgba(244,241,235,0.55)", lineHeight: 1.8, margin: 0, fontStyle: "italic" }}>
-                  A pioneering leadership programme in Bangladesh designed to empower young women pursuing careers in sustainable and renewable energy.
-                </p>
-                <div style={{ height: 1, background: "rgba(244,241,235,0.10)" }} />
-                {[
-                  "Selected for Shoktikonna — chosen from a competitive cohort of young women in tech and energy sectors across Bangladesh.",
-                  "Appointed Founding Member of the Alumni Committee, helping build and coordinate network engagement across 300+ graduate members from the ground up.",
-                ].map((text, i) => (
-                  <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-                    <span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "50%", background: "#d7ef35", marginTop: 8, flexShrink: 0 }} />
-                    <p style={{ fontFamily: "JetBrains Mono, monospace", fontSize: "clamp(0.9rem, 1.1vw, 1.05rem)", color: "rgba(244,241,235,0.85)", lineHeight: 1.8, margin: 0 }}>
-                      {text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Layer 2: Contact — rises from below ── */}
-        <div
-          ref={contactRef}
-          style={{
-            position: "absolute", inset: 0, zIndex: 2,
+            position: "absolute", inset: 0,
             background: "#d7ef35", color: "#111111",
-            padding: "10vh 5vw 5vh", overflow: "hidden",
+            padding: "10vh 5vw 5vh",
             transform: "translateY(100%)", willChange: "transform",
             display: "flex", flexDirection: "column", justifyContent: "space-between",
           }}
         >
           {/* Top block */}
           <div>
-            {/* Section label */}
             <div style={{
               fontFamily: "JetBrains Mono, monospace",
               fontSize: "clamp(15px, 1.4vw, 18px)", fontWeight: 700,
@@ -272,21 +280,16 @@ export default function TransitionContact() {
               07 — Contact
             </div>
 
-            {/* Typewriter subtitle */}
             <TypewriterContact visible={contactVisible} />
 
-            {/* Divider */}
             <div style={{ height: 1, background: "rgba(17,17,17,0.2)", marginBottom: "4vh" }} />
 
-            {/* Social links */}
             <div style={{ marginBottom: "4vh" }}>
               <LinkRow items={LINKS} />
             </div>
 
-            {/* Divider */}
             <div style={{ height: 1, background: "rgba(17,17,17,0.2)", marginBottom: "3vh" }} />
 
-            {/* Resume links */}
             <div style={{ display: "flex", alignItems: "baseline", gap: "clamp(20px, 3vw, 48px)", flexWrap: "wrap" }}>
               <span style={{
                 fontFamily: "JetBrains Mono, monospace",
@@ -298,7 +301,6 @@ export default function TransitionContact() {
               </span>
               <LinkRow items={RESUMES} />
             </div>
-
           </div>
 
           {/* Footer */}
@@ -313,8 +315,16 @@ export default function TransitionContact() {
             <span>hosted on github.io</span>
           </div>
         </div>
-
       </div>
     </section>
+  );
+}
+
+export default function TransitionContact() {
+  return (
+    <>
+      <ShoktikonnaPart />
+      <ContactPart />
+    </>
   );
 }
